@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Private account mapping. Only the signed-in owner can read/write it.
+    match /users/{userId} {
+      allow read, create, update, delete: if request.auth != null
+                                         && request.auth.uid == userId;
+    }
+
+    match /workspaces/{workspaceId} {
+      // A viewer must be authenticated and know the 4/6-digit viewer code,
+      // which deterministically resolves to this document ID.
+      allow get: if request.auth != null;
+      allow list: if false;
+
+      // Only the Firebase Auth owner can create or change the tracker.
+      allow create: if request.auth != null
+                    && request.resource.data.ownerUid == request.auth.uid;
+
+      allow update, delete: if request.auth != null
+                            && resource.data.ownerUid == request.auth.uid
+                            && request.resource.data.ownerUid == resource.data.ownerUid;
+    }
+  }
+}
