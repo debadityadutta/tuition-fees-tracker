@@ -1,27 +1,87 @@
-# Teach Fees Tracker — Firebase Login + Sync
+# Teach Fees Tracker
 
-This version adds a Firebase-backed owner account that signs in with **Name + Date of Birth**, while keeping the 4/6-digit read-only Viewer Mode.
+A responsive web application for managing tuition teachers, monthly fees, payment status, and synced viewer-only access.
 
-## Firebase setup
+## Features
 
-### 1. Authentication
-In Firebase Console → Authentication → Sign-in method, enable:
+- Create an owner account using Name + Date of Birth
+- Sign in from another device and access the same synced tracker
+- Add, edit, and delete tuition teachers
+- Store teacher name, subject, monthly fee, and joining date
+- Track monthly Paid / Unpaid status
+- Save payment dates
+- View yearly payment overview
+- Generate a 4 or 6 digit Viewer Code
+- Viewer Mode can see all synced details but cannot edit them
+- Responsive design for mobile and desktop
+- Installable as a Progressive Web App (PWA)
+- Real-time cloud sync with Firebase Firestore
 
-- **Email/Password** — used internally for the owner account. The app creates an internal Firebase identifier from the entered Name + DOB; the user is not asked for an email address.
-- **Anonymous** — used by Viewer Mode.
+## Technologies Used
 
-### 2. Firestore
-Create a Firestore database, then open Firestore → Rules and replace the rules with the contents of `firestore.rules`. Publish them.
+- React
+- JavaScript (JSX)
+- CSS
+- Vite
+- Firebase Authentication
+- Cloud Firestore
+- Firebase Hosting
+- Firestore Security Rules
+- Lucide React
+- Vite PWA Plugin
+- Responsive Web Design
 
-The database uses:
+## Technical Details
 
-- `users/{uid}` — private owner account mapping, including workspace ID and DOB. Only that signed-in owner can read this document.
-- `workspaces/{workspaceId}` — teachers, monthly fees, and payment data. Only the owner UID can write. Authenticated viewers can read a workspace when they know its viewer code-derived document ID.
+- Firebase Email/Password Authentication is used internally for owner accounts.
+- Firebase Anonymous Authentication is used for Viewer Mode.
+- Firestore `onSnapshot` is used for real-time synced updates.
+- Firestore Security Rules keep owner editing access separate from viewer read-only access.
+- The browser Web Crypto API is used for SHA-256 hashing when generating internal identifiers.
+- Local Storage is used for migration compatibility with the older version of the app.
+- PWA support allows the app to be installed on supported phones and computers.
 
-The owner's DOB is **not stored in the viewer-readable workspace document**.
+## Owner Mode
 
-### 3. Firebase Web App config
-Copy `.env.example` to `.env`:
+The owner can:
+
+- Add teachers
+- Edit teacher details
+- Delete teachers
+- Change Paid / Unpaid status
+- Set payment dates
+- View monthly and yearly records
+
+## Viewer Mode
+
+A viewer enters the owner's 4 or 6 digit Viewer Code.
+
+Viewer Mode can:
+
+- View teachers
+- View monthly fees
+- View payment status
+- View payment dates
+- View yearly records
+
+Viewer Mode cannot add, edit, delete, or change payment data.
+
+## Run Locally
+
+```bash
+npm install
+npm run dev
+```
+
+## Build
+
+```bash
+npm run build
+```
+
+## Firebase Setup
+
+Create a `.env` file using the values shown in `.env.example`:
 
 ```env
 VITE_FIREBASE_API_KEY=...
@@ -32,49 +92,26 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=...
 VITE_FIREBASE_APP_ID=...
 ```
 
-Restart Vite after editing `.env`.
+Enable these Firebase Authentication methods:
 
-## Run locally
+- Email/Password
+- Anonymous
 
-```bash
-npm install
-npm run dev
-```
+Create a Firestore database and publish the included `firestore.rules`.
 
-## Owner flow
+## Deployment
 
-First device:
-
-1. Create account
-2. Enter Name
-3. Enter Date of Birth
-4. Choose a 4 or 6 digit Viewer Code (6 digits recommended)
-5. Add teachers and payments
-
-Another device:
-
-1. Open the same hosted app
-2. Choose Sign in
-3. Enter the same Name + Date of Birth
-4. The same Firestore tracker opens with owner edit access
-
-## Viewer flow
-
-Choose Viewer Mode and enter the viewer code. Viewer Mode can see synced records but cannot change Firestore data because its Firebase UID does not match `ownerUid`.
-
-## Deploy to Firebase Hosting
-
-Make sure `firebase.json` uses `dist` as the Hosting public directory. Then:
+The project is configured for Firebase Hosting.
 
 ```bash
 npm run build
 firebase deploy --only hosting
 ```
 
-## Security note
+## Developer
 
-DOB-only login is intentionally simple, but a date of birth is easier to guess than a normal password. This app uses Firebase Authentication and Firestore rules for access control, but for stronger security add a PIN/password in addition to DOB later. Use a 6-digit viewer code rather than a 4-digit one.
+**Debaditya Dutta**
 
-### Upgrading the older anonymous-owner version
+Class XI student and aspiring web developer from Berhampore, West Bengal.
 
-If this browser still has the old owner session and `teachFees.ownerWorkspace` data in local storage, choosing **Create account** with the same viewer code upgrades that anonymous Firebase user to the new Name + DOB account while keeping the existing Firestore workspace and owner UID.
+Interested in web development, coding, responsive design, and building useful web applications.
